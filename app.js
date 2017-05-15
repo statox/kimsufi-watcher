@@ -53,7 +53,7 @@ function parseResponse(targetRef, body) {
         .answer.availability
         .filter(a => a.reference == targetRef)[0]
         .metaZones
-        .filter(function(a) {
+        .forEach(function(a) {
             availability[a.zone] = a.availability;
         });
 
@@ -67,7 +67,7 @@ function sendNotification(text) {
     slack.send({
         text: text,
         channel: '@statox',
-        username: 'KimsufiWatcher'
+        username: 'Kimsufi Watcher'
     });
 }
 
@@ -78,14 +78,17 @@ function checkResponse(body) {
     var availability = parseResponse(targetReference, body);
 
     if (availability[targetZone] != 'unavailable') {
-        var message = "";
+        var message = "A " + targetReference + " server is currently available:\n";
+        message += "```";
 
         for (var zone in availability) {
-            message += zone + "\t" + availability[zone] + "\n";
+            if (availability[zone] != 'unavailable') {
+                message += zone + "\t" + availability[zone] + "\n";
+            }
         }
-        message += "\n";
-        message += "URL Kimsufi:   ";
-        message += "https://www.kimsufi.com/fr/serveurs.xml";
+
+        message += "```\n";
+        message += "URL Kimsufi:   https://www.kimsufi.com/fr/serveurs.xml";
 
         sendNotification(message);
     }
